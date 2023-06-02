@@ -98,3 +98,24 @@ export function join(...pathFragments) {
 	const joinedSegments = pathFragments.map(joinFragment).join("/");
 	return normalizePath(joinedSegments);
 }
+
+/**
+ * Check if `segment` is a prefix segment
+ * @param {string} segment
+ * @return {boolean}
+ */
+export const isPrefix = segment => startsWith(segment, '^');
+
+/**
+ * Get the prefix of a prefix segment
+ * @param {string} segment
+ * @return {string}
+ */
+export const getPrefix = segment => segment.substring(1, segment.indexOf(':'));
+
+/**
+ * Get the bound variable of a prefix segment
+ * @param {string} segment
+ * @return {string}
+ */
+export const getPrefixVariable = segment => segment.substring(segment.indexOf(':') + 1);

@@ -10,12 +10,16 @@ import {
 	stripSplat,
 	normalizePath,
 	substr,
+	isPrefix,
+	getPrefix,
+	getPrefixVariable,
 } from "./paths";
 import { ROUTER_ID, fail } from "./warning";
 import { isUndefined } from "./utils";
 
-const SEGMENT_POINTS = 4;
-const STATIC_POINTS = 3;
+const SEGMENT_POINTS = 5;
+const STATIC_POINTS = 4;
+const PREFIX_POINTS = 3;
 const DYNAMIC_POINTS = 2;
 const SPLAT_PENALTY = 1;
 const ROOT_POINTS = 1;
@@ -35,6 +39,8 @@ export function rankRoute(route, index) {
 
 				if (isRootSegment(segment)) {
 					nextScore += ROOT_POINTS;
+				} else if (isPrefix(segment)) {
+					nextScore += PREFIX_POINTS;
 				} else if (isDynamic(segment)) {
 					nextScore += DYNAMIC_POINTS;
 				} else if (isSplat(segment)) {
@@ -142,6 +148,18 @@ export function pick(routes, uri) {
 				// route: /users/:userId
 				missed = true;
 				break;
+			}
+
+
+			if (isPrefix(routeSegment) && !isRootUri) {
+				let prefix = getPrefix(routeSegment);
+				if (!uriSegment.startsWith(prefix)) {
+					missed = true;
+					break;
+				}
+
+				params[getPrefixVariable(routeSegment)] = uriSegment.substring(prefix.length);
+				continue;
 			}
 
 			const dynamicMatch = paramRegex.exec(routeSegment);
